@@ -1,13 +1,14 @@
 {
-  "name": "admin-panel",
+  "name": "plastinka-admin",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "npx serve -s dist"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -30,6 +31,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "serve": "^14.2.0",
     "vite": "^7.3.1"
   }
 }
