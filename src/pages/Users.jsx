@@ -204,13 +204,28 @@ const Users = () => {
 
     try {
       setSaving(true);
-      await api.put(`/admin/users/${selectedUser.id}`, editForm);
+      console.log('Отправка данных на сервер:', {
+        id: selectedUser.id,
+        nickname: editForm.nickname,
+        email: editForm.email,
+        subscription_type: editForm.subscription_type,
+        subscription_expires_at: editForm.subscription_expires_at || null
+      });
+      
+      const response = await api.put(`/admin/users/${selectedUser.id}`, {
+        nickname: editForm.nickname,
+        email: editForm.email,
+        subscription_type: editForm.subscription_type,
+        subscription_expires_at: editForm.subscription_expires_at || null
+      });
+      
+      console.log('Ответ сервера:', response.data);
       await loadUsers();
       setEditDialogOpen(false);
       alert('Пользователь обновлен');
     } catch (err) {
-      console.error('Ошибка обновления:', err);
-      alert('Ошибка при обновлении пользователя');
+      console.error('Ошибка обновления:', err.response?.data || err.message);
+      alert(`Ошибка при обновлении пользователя: ${err.response?.data?.message || err.message}`);
     } finally {
       setSaving(false);
     }
