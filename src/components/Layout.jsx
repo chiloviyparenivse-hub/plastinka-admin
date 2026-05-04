@@ -18,6 +18,7 @@ import {
   useMediaQuery,
   useTheme,
   Container,
+  CssBaseline,
 } from '@mui/material';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -36,6 +37,9 @@ const miniDrawerWidth = 72;
 // Стилизованный компонент для Drawer с адаптивной шириной
 const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
+    width: open ? drawerWidth : miniDrawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
     '& .MuiDrawer-paper': {
       width: open ? drawerWidth : miniDrawerWidth,
       background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
@@ -46,9 +50,11 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
         duration: theme.transitions.duration.enteringScreen,
       }),
       overflowX: 'hidden',
-      [theme.breakpoints.down('md')]: {
-        width: drawerWidth,
-      },
+      position: 'relative',
+      zIndex: 1100,
+    },
+    [theme.breakpoints.down('md')]: {
+      width: drawerWidth,
     },
   })
 );
@@ -59,6 +65,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backdropFilter: 'blur(10px)',
   borderBottom: '1px solid rgba(255,255,255,0.1)',
   boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+  zIndex: theme.zIndex.drawer + 1,
   [theme.breakpoints.down('sm')]: {
     '& .MuiToolbar-root': {
       minHeight: 56,
@@ -100,22 +107,29 @@ const StyledListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 
 );
 
 // Стилизованный контент для адаптивности
-const MainContent = styled(Box)(({ theme }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  backgroundColor: '#0a0a1a',
-  minHeight: '100vh',
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(1.5),
-  },
-  [theme.breakpoints.between('sm', 'md')]: {
-    padding: theme.spacing(2),
-  },
-}));
+const MainContent = styled(Box, { shouldForwardProp: (prop) => prop !== 'drawerOpen' })(
+  ({ theme, drawerOpen }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    backgroundColor: '#0a0a1a',
+    minHeight: '100vh',
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerOpen ? `${drawerWidth}px` : `${miniDrawerWidth}px`,
+    width: `calc(100% - ${drawerOpen ? drawerWidth : miniDrawerWidth}px)`,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+      width: '100%',
+      padding: theme.spacing(1.5),
+    },
+    [theme.breakpoints.between('sm', 'md')]: {
+      marginLeft: drawerOpen ? `${drawerWidth}px` : `${miniDrawerWidth}px`,
+      padding: theme.spacing(2),
+    },
+  })
+);
 
 const Layout = ({ onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -242,6 +256,8 @@ const Layout = ({ onLogout }) => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#0a0a1a' }}>
+      <CssBaseline />
+      
       <StyledAppBar position="fixed" elevation={0}>
         <Toolbar>
           <IconButton
@@ -313,39 +329,44 @@ const Layout = ({ onLogout }) => {
         </Toolbar>
       </StyledAppBar>
 
-      {/* Мобильный Drawer */}
-      <StyledDrawer
+      {/* Мобильный Drawer (временный) */}
+      <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+            borderRight: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '4px 0 20px rgba(0,0,0,0.3)',
+          },
         }}
-        open={true}
       >
         {drawerContent}
-      </StyledDrawer>
+      </Drawer>
 
-      {/* Десктопный/Планшетный Drawer */}
+      {/* Десктопный/Планшетный Drawer (постоянный) */}
       <StyledDrawer
         variant="permanent"
         open={drawerOpen}
         sx={{
           display: { xs: 'none', sm: 'block' },
-          width: drawerOpen ? drawerWidth : miniDrawerWidth,
         }}
       >
         {drawerContent}
       </StyledDrawer>
 
-      <MainContent>
-        <Toolbar />
+      <MainContent drawerOpen={drawerOpen && !isMobile}>
+        <Toolbar /> {/* Отступ под AppBar */}
         <Container 
-          maxWidth="xl" 
+          maxWidth={false}
+          disableGutters
           sx={{ 
             px: { xs: 1, sm: 2, md: 3 },
-            minWidth: { xs: 'auto', sm: '100%' },
+            width: '100%',
           }}
         >
           <Outlet />
