@@ -31,29 +31,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import { styled } from '@mui/material/styles';
 
-const drawerWidth = 280;
-const miniDrawerWidth = 72;
-
-const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: open ? drawerWidth : miniDrawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    '& .MuiDrawer-paper': {
-      width: open ? drawerWidth : miniDrawerWidth,
-      background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      borderRight: '1px solid rgba(255,255,255,0.1)',
-      boxShadow: '4px 0 20px rgba(0,0,0,0.3)',
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      overflowX: 'hidden',
-      position: 'relative',
-      zIndex: 1100,
-    },
-  })
-);
+const drawerWidth = 260;
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)',
@@ -86,20 +64,6 @@ const StyledListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 
   })
 );
 
-const MainContent = styled(Box)(({ theme }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  backgroundColor: '#0a0a1a',
-  minHeight: '100vh',
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(1.5),
-  },
-}));
-
 const Layout = ({ onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
@@ -110,13 +74,16 @@ const Layout = ({ onLogout }) => {
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
+  // Управление состоянием панели
   useEffect(() => {
-    if (isTablet) {
+    if (isMobile) {
+      setDrawerOpen(false);
+    } else if (isTablet) {
       setDrawerOpen(false);
     } else if (isDesktop) {
       setDrawerOpen(true);
     }
-  }, [isTablet, isDesktop]);
+  }, [isMobile, isTablet, isDesktop]);
 
   const handleDrawerToggle = () => {
     if (isMobile) {
@@ -150,124 +117,45 @@ const Layout = ({ onLogout }) => {
     return location.pathname === path;
   };
 
+  // Содержимое боковой панели
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Logo - исправлено: теперь текст не уезжает */}
-      <Toolbar 
+      {/* Логотип - всегда виден */}
+      <Box 
         sx={{ 
-          justifyContent: 'center', 
-          py: 2, 
+          p: 2, 
+          pt: 3, 
+          pb: 2, 
           borderBottom: '1px solid rgba(255,255,255,0.1)',
-          minHeight: 'auto !important',
+          textAlign: 'center',
         }}
       >
-        <Box sx={{ textAlign: 'center', width: '100%' }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              color: 'transparent',
-              display: 'block',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            Пластинка
-          </Typography>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: 'rgba(255,255,255,0.5)',
-              display: 'block',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            Админ-панель
-          </Typography>
-        </Box>
-      </Toolbar>
-
-      {/* Menu Items */}
-      <Box sx={{ flex: 1, mt: 3 }}>
-        <List component="nav">
-          {menuItems.map((item) => (
-            <StyledListItem
-              button
-              key={item.text}
-              component={Link}
-              to={item.path}
-              onClick={() => isMobile && setMobileOpen(false)}
-              active={isActive(item.path) ? 1 : 0}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-              {isActive(item.path) && (
-                <Box
-                  sx={{
-                    width: 3,
-                    height: 20,
-                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                    borderRadius: 1.5,
-                  }}
-                />
-              )}
-            </StyledListItem>
-          ))}
-        </List>
-      </Box>
-
-      {/* Stats Footer */}
-      <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', mt: 'auto' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
-          <EqualizerIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)' }}>
-            Версия 1.0.0
-          </Typography>
-        </Box>
-        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)' }} display="block" textAlign="center">
-          © 2026 Пластинка
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            mb: 0.5,
+          }}
+        >
+          Пластинка
+        </Typography>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            color: 'rgba(255,255,255,0.5)',
+            display: 'block',
+          }}
+        >
+          Админ-панель
         </Typography>
       </Box>
-    </Box>
-  );
 
-  const mobileDrawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Logo для мобильного - полная версия */}
-      <Toolbar 
-        sx={{ 
-          justifyContent: 'center', 
-          py: 2, 
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          minHeight: 'auto !important',
-        }}
-      >
-        <Box sx={{ textAlign: 'center', width: '100%' }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              color: 'transparent',
-            }}
-          >
-            Пластинка
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
-            Админ-панель
-          </Typography>
-        </Box>
-      </Toolbar>
-
-      <Box sx={{ flex: 1, mt: 3 }}>
+      {/* Меню */}
+      <Box sx={{ flex: 1, mt: 2 }}>
         <List component="nav">
           {menuItems.map((item) => (
             <StyledListItem
@@ -275,7 +163,9 @@ const Layout = ({ onLogout }) => {
               key={item.text}
               component={Link}
               to={item.path}
-              onClick={() => isMobile && setMobileOpen(false)}
+              onClick={() => {
+                if (isMobile) setMobileOpen(false);
+              }}
               active={isActive(item.path) ? 1 : 0}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -285,6 +175,7 @@ const Layout = ({ onLogout }) => {
         </List>
       </Box>
 
+      {/* Футер */}
       <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', mt: 'auto' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
           <EqualizerIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
@@ -303,6 +194,7 @@ const Layout = ({ onLogout }) => {
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#0a0a1a' }}>
       <CssBaseline />
       
+      {/* Верхняя панель */}
       <StyledAppBar position="fixed" elevation={0}>
         <Toolbar>
           <IconButton
@@ -374,7 +266,7 @@ const Layout = ({ onLogout }) => {
         </Toolbar>
       </StyledAppBar>
 
-      {/* Мобильный Drawer (временный) */}
+      {/* Мобильный Drawer (выезжающий) */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -390,37 +282,108 @@ const Layout = ({ onLogout }) => {
           },
         }}
       >
-        {mobileDrawerContent}
+        {drawerContent}
       </Drawer>
 
-      {/* Десктопный/Планшетный Drawer (постоянный) */}
-      <StyledDrawer
+      {/* Десктопный Drawer (постоянный, сворачиваемый) */}
+      <Drawer
         variant="permanent"
-        open={drawerOpen}
         sx={{
           display: { xs: 'none', sm: 'block' },
+          width: drawerOpen ? drawerWidth : 72,
+          flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: drawerOpen ? drawerWidth : miniDrawerWidth,
+            width: drawerOpen ? drawerWidth : 72,
+            background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+            borderRight: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '4px 0 20px rgba(0,0,0,0.3)',
+            transition: theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
             overflowX: 'hidden',
           },
         }}
+        open={drawerOpen}
       >
-        {drawerContent}
-      </StyledDrawer>
+        {/* Свёрнутая версия - только иконки */}
+        {!drawerOpen ? (
+          <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ p: 2, pt: 3, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                П
+              </Typography>
+            </Box>
+            <Box sx={{ flex: 1, mt: 2 }}>
+              <List>
+                {menuItems.map((item) => (
+                  <ListItem
+                    button
+                    key={item.text}
+                    component={Link}
+                    to={item.path}
+                    sx={{
+                      justifyContent: 'center',
+                      borderRadius: 12,
+                      mb: 1,
+                      mx: 1,
+                      backgroundColor: isActive(item.path) ? 'rgba(102,126,234,0.15)' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: 'rgba(102,126,234,0.1)',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 'auto', color: isActive(item.path) ? '#667eea' : 'rgba(255,255,255,0.6)' }}>
+                      {item.icon}
+                    </ListItemIcon>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+            <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <EqualizerIcon sx={{ fontSize: 20, color: 'rgba(255,255,255,0.4)', display: 'block', mx: 'auto' }} />
+            </Box>
+          </Box>
+        ) : (
+          drawerContent
+        )}
+      </Drawer>
 
-      <MainContent>
+      {/* Основной контент */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: { xs: 1.5, sm: 2, md: 3 },
+          backgroundColor: '#0a0a1a',
+          minHeight: '100vh',
+          width: { sm: `calc(100% - ${drawerOpen ? drawerWidth : 72}px)` },
+          transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+        }}
+      >
         <Toolbar />
         <Container 
           maxWidth={false}
           disableGutters
           sx={{ 
-            px: { xs: 1, sm: 2, md: 3 },
             width: '100%',
           }}
         >
           <Outlet />
         </Container>
-      </MainContent>
+      </Box>
     </Box>
   );
 };
