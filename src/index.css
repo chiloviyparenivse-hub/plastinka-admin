@@ -66,3 +66,77 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+/* Базовая настройка для масштабирования */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+@media screen and (max-width: 600px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Запрещаем масштабирование текста на мобильных (но оставляем zoom) */
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Таблицы с горизонтальным скроллом */
+.MuiTableContainer-root {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.MuiTable-root {
+  min-width: 600px;
+}
+
+/* Для очень маленьких экранов */
+@media screen and (max-width: 400px) {
+  .MuiTable-root {
+    min-width: 500px;
+  }
+}
+
+/* Улучшаем скролл */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(102,126,234,0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(102,126,234,0.8);
+}
+
+/* Контейнеры не должны ломаться */
+.MuiContainer-root {
+  overflow-x: auto;
+}
+
+/* Карточки не должны сжиматься */
+.MuiPaper-root {
+  word-break: break-word;
+}
+
+/* Отключаем transform: translateX при масштабировании на мобильных */
+@media screen and (max-width: 600px) {
+  .MuiListItem-root:hover {
+    transform: none !important;
+  }
+}
