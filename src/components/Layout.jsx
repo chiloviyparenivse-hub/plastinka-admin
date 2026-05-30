@@ -27,7 +27,6 @@ import CategoryIcon from '@mui/icons-material/Category';
 import PeopleIcon from '@mui/icons-material/People';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import { styled } from '@mui/material/styles';
 
@@ -116,18 +115,15 @@ const Layout = ({ onLogout }) => {
     return location.pathname === path;
   };
 
-  // Содержимое боковой панели (развёрнутое)
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Логотип - сдвинут вниз */}
       <Box 
         sx={{ 
           p: 3,
-          pt: 4,
+          pt: 8,
           pb: 3,
           borderBottom: '1px solid rgba(255,255,255,0.1)',
           textAlign: 'center',
-          mt: 2,
         }}
       >
         <Typography
@@ -157,7 +153,6 @@ const Layout = ({ onLogout }) => {
         </Typography>
       </Box>
 
-      {/* Меню */}
       <Box sx={{ flex: 1, mt: 2 }}>
         <List component="nav">
           {menuItems.map((item) => (
@@ -178,7 +173,6 @@ const Layout = ({ onLogout }) => {
         </List>
       </Box>
 
-      {/* Футер */}
       <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', mt: 'auto' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
           <EqualizerIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
@@ -251,13 +245,7 @@ const Layout = ({ onLogout }) => {
               },
             }}
           >
-            <MenuItem onClick={handleMenuClose} sx={{ color: '#fff' }}>
-              <ListItemIcon>
-                <AccountCircleIcon fontSize="small" sx={{ color: '#667eea' }} />
-              </ListItemIcon>
-              <ListItemText>Профиль</ListItemText>
-            </MenuItem>
-            <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
+            {/* Удалил пункт "Профиль" - только выход */}
             <MenuItem onClick={handleLogout} sx={{ color: '#fff' }}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" sx={{ color: '#ff6b6b' }} />
@@ -268,7 +256,6 @@ const Layout = ({ onLogout }) => {
         </Toolbar>
       </StyledAppBar>
 
-      {/* Мобильный Drawer (выезжающий) */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -287,7 +274,6 @@ const Layout = ({ onLogout }) => {
         {drawerContent}
       </Drawer>
 
-      {/* Десктопный Drawer (постоянный, сворачиваемый) */}
       <Drawer
         variant="permanent"
         sx={{
@@ -309,9 +295,8 @@ const Layout = ({ onLogout }) => {
         open={drawerOpen}
       >
         {!drawerOpen ? (
-          // Свёрнутая версия - только буква "П"
           <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Box sx={{ p: 2, pt: 3, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', mt: 2 }}>
+            <Box sx={{ p: 2, pt: 8, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
               <Typography
                 variant="h5"
                 sx={{
@@ -361,7 +346,6 @@ const Layout = ({ onLogout }) => {
         )}
       </Drawer>
 
-      {/* Основной контент */}
       <Box
         component="main"
         sx={{
