@@ -74,7 +74,6 @@ const Layout = ({ onLogout }) => {
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
-  // Управление состоянием панели
   useEffect(() => {
     if (isMobile) {
       setDrawerOpen(false);
@@ -117,40 +116,44 @@ const Layout = ({ onLogout }) => {
     return location.pathname === path;
   };
 
-  // Содержимое боковой панели
+  // Содержимое боковой панели (развёрнутое)
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Логотип - всегда виден */}
+      {/* Логотип - сдвинут вниз */}
       <Box 
         sx={{ 
-          p: 2, 
-          pt: 3, 
-          pb: 2, 
+          p: 3,
+          pt: 4,
+          pb: 3,
           borderBottom: '1px solid rgba(255,255,255,0.1)',
           textAlign: 'center',
+          mt: 2,
         }}
       >
         <Typography
-          variant="h5"
+          variant="h4"
           sx={{
-            fontWeight: 700,
+            fontWeight: 800,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             color: 'transparent',
-            mb: 0.5,
+            mb: 1,
+            letterSpacing: 1,
           }}
         >
           Пластинка
         </Typography>
         <Typography 
-          variant="caption" 
+          variant="body2"
           sx={{ 
             color: 'rgba(255,255,255,0.5)',
             display: 'block',
+            fontSize: '0.75rem',
+            letterSpacing: 0.5,
           }}
         >
-          Админ-панель
+          Административная панель
         </Typography>
       </Box>
 
@@ -194,7 +197,6 @@ const Layout = ({ onLogout }) => {
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#0a0a1a' }}>
       <CssBaseline />
       
-      {/* Верхняя панель */}
       <StyledAppBar position="fixed" elevation={0}>
         <Toolbar>
           <IconButton
@@ -306,14 +308,14 @@ const Layout = ({ onLogout }) => {
         }}
         open={drawerOpen}
       >
-        {/* Свёрнутая версия - только иконки */}
         {!drawerOpen ? (
+          // Свёрнутая версия - только буква "П"
           <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Box sx={{ p: 2, pt: 3, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
+            <Box sx={{ p: 2, pt: 3, pb: 2, borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', mt: 2 }}>
               <Typography
-                variant="h6"
+                variant="h5"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: 800,
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
@@ -336,6 +338,7 @@ const Layout = ({ onLogout }) => {
                       borderRadius: 12,
                       mb: 1,
                       mx: 1,
+                      py: 1.5,
                       backgroundColor: isActive(item.path) ? 'rgba(102,126,234,0.15)' : 'transparent',
                       '&:hover': {
                         backgroundColor: 'rgba(102,126,234,0.1)',
@@ -349,7 +352,7 @@ const Layout = ({ onLogout }) => {
                 ))}
               </List>
             </Box>
-            <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', mt: 'auto' }}>
               <EqualizerIcon sx={{ fontSize: 20, color: 'rgba(255,255,255,0.4)', display: 'block', mx: 'auto' }} />
             </Box>
           </Box>
