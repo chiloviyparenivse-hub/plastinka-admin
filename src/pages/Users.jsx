@@ -25,6 +25,8 @@ import {
   InputAdornment,
   Grid,
   MenuItem,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { 
   Edit, 
@@ -43,12 +45,12 @@ import {
 import { styled } from '@mui/material/styles';
 import api from '../services/api';
 
-// Стилизованные компоненты в стиле приложения
 const GradientPaper = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
   borderRadius: 20,
   border: '1px solid rgba(255,255,255,0.1)',
   boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+  overflowX: 'auto',
 }));
 
 const GlassPaper = styled(Paper)(({ theme }) => ({
@@ -106,6 +108,8 @@ const PremiumBadge = styled(Chip)({
 });
 
 const Users = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -138,7 +142,6 @@ const Users = () => {
       if (Array.isArray(response.data)) {
         setUsers(response.data);
         setFilteredUsers(response.data);
-        console.log(`Загружено ${response.data.length} пользователей`);
       } else {
         setError('Неверный формат данных от сервера');
       }
@@ -204,22 +207,13 @@ const Users = () => {
 
     try {
       setSaving(true);
-      console.log('Отправка данных на сервер:', {
-        id: selectedUser.id,
+      await api.put(`/admin/users/${selectedUser.id}`, {
         nickname: editForm.nickname,
         email: editForm.email,
         subscription_type: editForm.subscription_type,
         subscription_expires_at: editForm.subscription_expires_at || null
       });
       
-      const response = await api.put(`/admin/users/${selectedUser.id}`, {
-        nickname: editForm.nickname,
-        email: editForm.email,
-        subscription_type: editForm.subscription_type,
-        subscription_expires_at: editForm.subscription_expires_at || null
-      });
-      
-      console.log('Ответ сервера:', response.data);
       await loadUsers();
       setEditDialogOpen(false);
       alert('Пользователь обновлен');
@@ -274,9 +268,9 @@ const Users = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
       <Typography 
-        variant="h4" 
+        variant={isMobile ? "h5" : "h4"} 
         gutterBottom 
         sx={{ 
           fontWeight: 600, 
@@ -284,14 +278,13 @@ const Users = () => {
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           color: 'transparent',
-          mb: 3
+          mb: { xs: 2, sm: 3 }
         }}
       >
         Управление пользователями
       </Typography>
 
-      {/* Поиск */}
-      <GlassPaper sx={{ p: 2, mb: 3 }}>
+      <GlassPaper sx={{ p: { xs: 1.5, sm: 2 }, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={9}>
             <SearchField
@@ -317,7 +310,7 @@ const Users = () => {
             />
           </Grid>
           <Grid item xs={12} md={3}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
               <Chip 
                 label={`Найдено: ${filteredUsers.length} из ${users.length}`}
                 sx={{ 
@@ -354,17 +347,17 @@ const Users = () => {
         </GradientPaper>
       ) : (
         <TableContainer component={GradientPaper}>
-          <Table>
+          <Table sx={{ minWidth: isMobile ? 800 : 'auto' }}>
             <TableHead>
               <TableRow>
                 <StyledTableHeaderCell>ID</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Пользователь</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Email</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Статус</StyledTableHeaderCell>
-                <StyledTableHeaderCell>Подписка до</StyledTableHeaderCell>
-                <StyledTableHeaderCell>Плейлистов</StyledTableHeaderCell>
-                <StyledTableHeaderCell>Треков</StyledTableHeaderCell>
-                <StyledTableHeaderCell>Дата регистрации</StyledTableHeaderCell>
+                {!isMobile && <StyledTableHeaderCell>Подписка до</StyledTableHeaderCell>}
+                {!isMobile && <StyledTableHeaderCell>Плейлистов</StyledTableHeaderCell>}
+                {!isMobile && <StyledTableHeaderCell>Треков</StyledTableHeaderCell>}
+                {!isMobile && <StyledTableHeaderCell>Дата регистрации</StyledTableHeaderCell>}
                 <StyledTableHeaderCell align="right">Действия</StyledTableHeaderCell>
               </TableRow>
             </TableHead>
@@ -426,41 +419,45 @@ const Users = () => {
                         }}
                       />
                     </StyledTableCell>
-                    <StyledTableCell>
-                      <Typography variant="body2" color="rgba(255,255,255,0.7)">
-                        {user.subscription_expires_at ? formatExpiryDate(user.subscription_expires_at) : '—'}
-                      </Typography>
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Chip 
-                        label={user.playlists_count || 0}
-                        size="small"
-                        sx={{ 
-                          backgroundColor: 'rgba(102,126,234,0.2)',
-                          color: '#667eea',
-                          fontWeight: 500,
-                        }}
-                      />
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Chip 
-                        label={user.total_tracks || 0}
-                        size="small"
-                        sx={{ 
-                          backgroundColor: 'rgba(76,175,80,0.2)',
-                          color: '#4caf50',
-                          fontWeight: 500,
-                        }}
-                      />
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <CalendarToday sx={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />
-                        <Typography variant="body2" color="rgba(255,255,255,0.8)">
-                          {formatDate(user.created_at)}
-                        </Typography>
-                      </Box>
-                    </StyledTableCell>
+                    {!isMobile && (
+                      <>
+                        <StyledTableCell>
+                          <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                            {user.subscription_expires_at ? formatExpiryDate(user.subscription_expires_at) : '—'}
+                          </Typography>
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <Chip 
+                            label={user.playlists_count || 0}
+                            size="small"
+                            sx={{ 
+                              backgroundColor: 'rgba(102,126,234,0.2)',
+                              color: '#667eea',
+                              fontWeight: 500,
+                            }}
+                          />
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <Chip 
+                            label={user.total_tracks || 0}
+                            size="small"
+                            sx={{ 
+                              backgroundColor: 'rgba(76,175,80,0.2)',
+                              color: '#4caf50',
+                              fontWeight: 500,
+                            }}
+                          />
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <CalendarToday sx={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />
+                            <Typography variant="body2" color="rgba(255,255,255,0.8)">
+                              {formatDate(user.created_at)}
+                            </Typography>
+                          </Box>
+                        </StyledTableCell>
+                      </>
+                    )}
                     <StyledTableCell align="right">
                       <Tooltip title="Просмотр">
                         <IconButton 
@@ -498,16 +495,16 @@ const Users = () => {
         </TableContainer>
       )}
 
-      {/* Диалог просмотра пользователя */}
       <Dialog 
         open={viewDialogOpen} 
         onClose={() => setViewDialogOpen(false)} 
         maxWidth="md" 
         fullWidth
+        fullScreen={isMobile}
         PaperProps={{
           sx: {
             background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-            borderRadius: 3,
+            borderRadius: isMobile ? 0 : 3,
             border: '1px solid rgba(255,255,255,0.1)',
           }
         }}
@@ -518,7 +515,7 @@ const Users = () => {
         <DialogContent sx={{ mt: 2 }}>
           {selectedUser && (
             <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'center', sm: 'flex-start' }, gap: 3, mb: 4 }}>
                 <Avatar 
                   sx={{ 
                     width: 80, 
@@ -534,8 +531,8 @@ const Users = () => {
                 >
                   {selectedUser.nickname?.charAt(0).toUpperCase() || <Person />}
                 </Avatar>
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
                     <Typography variant="h5" sx={{ color: '#fff', fontWeight: 600 }}>
                       {selectedUser.nickname}
                     </Typography>
@@ -564,7 +561,7 @@ const Users = () => {
               <Typography variant="subtitle1" sx={{ color: '#667eea', fontWeight: 600, mb: 2 }}>
                 Статистика
               </Typography>
-              <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap', flexDirection: { xs: 'column', sm: 'row' } }}>
                 <GlassPaper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
                   <PlaylistPlay sx={{ color: '#667eea', fontSize: 32, mb: 1 }} />
                   <Typography variant="h3" sx={{ color: '#fff', fontWeight: 600 }}>
@@ -585,7 +582,7 @@ const Users = () => {
                 </GlassPaper>
                 <GlassPaper sx={{ p: 2, flex: 1, textAlign: 'center' }}>
                   <Schedule sx={{ color: '#ff9800', fontSize: 32, mb: 1 }} />
-                  <Typography variant="h3" sx={{ color: '#fff', fontWeight: 600 }}>
+                  <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
                     {formatDuration(selectedUser.total_duration)}
                   </Typography>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
@@ -639,16 +636,16 @@ const Users = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Диалог редактирования */}
       <Dialog 
         open={editDialogOpen} 
         onClose={() => setEditDialogOpen(false)} 
         maxWidth="sm" 
         fullWidth
+        fullScreen={isMobile}
         PaperProps={{
           sx: {
             background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-            borderRadius: 3,
+            borderRadius: isMobile ? 0 : 3,
             border: '1px solid rgba(255,255,255,0.1)',
           }
         }}
@@ -726,11 +723,11 @@ const Users = () => {
             }}
           />
         </DialogContent>
-        <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: 2 }}>
+        <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: { xs: 1.5, sm: 2 }, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
           <Button 
             onClick={() => setEditDialogOpen(false)} 
             disabled={saving}
-            sx={{ color: '#667eea' }}
+            sx={{ color: '#667eea', width: { xs: '100%', sm: 'auto' } }}
           >
             Отмена
           </Button>
@@ -740,7 +737,8 @@ const Users = () => {
             disabled={saving}
             sx={{ 
               background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              '&:hover': { background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)' }
+              '&:hover': { background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)' },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             {saving ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Сохранить'}

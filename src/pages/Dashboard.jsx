@@ -6,6 +6,8 @@ import {
   Typography,
   Box,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   MusicNote,
@@ -16,26 +18,33 @@ import {
 import { styled } from '@mui/material/styles';
 import api from '../services/api';
 
-// Стилизованные компоненты
 const GlassCard = styled(Paper)(({ theme }) => ({
   backgroundColor: 'rgba(255,255,255,0.05)',
   backdropFilter: 'blur(10px)',
   borderRadius: 16,
   border: '1px solid rgba(255,255,255,0.1)',
-  padding: '24px',
+  padding: theme.spacing(2),
   transition: 'all 0.3s ease',
   '&:hover': {
     backgroundColor: 'rgba(255,255,255,0.08)',
     transform: 'translateY(-2px)',
   },
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+  },
 }));
 
 const StatBox = styled(Box)(({ theme }) => ({
   textAlign: 'center',
-  padding: '16px',
+  padding: theme.spacing(1.5),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1),
+  },
 }));
 
 const Dashboard = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [stats, setStats] = useState({
     tracks: 0,
     genres: 0,
@@ -99,7 +108,7 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
         <GlassCard>
           <Typography sx={{ color: '#ff6b6b', textAlign: 'center' }}>{error}</Typography>
         </GlassCard>
@@ -108,72 +117,70 @@ const Dashboard = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Заголовок */}
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
       <Typography 
-        variant="h4" 
+        variant={isMobile ? "h5" : "h4"} 
         gutterBottom 
         sx={{ 
           fontWeight: 600, 
           color: '#fff',
-          mb: 4
+          mb: { xs: 2, sm: 4 }
         }}
       >
         Обзор
       </Typography>
 
-      {/* Основные показатели */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid container spacing={isMobile ? 2 : 3}>
+        <Grid item xs={6} sm={6} md={3}>
           <GlassCard>
             <StatBox>
-              <MusicNote sx={{ fontSize: 40, color: '#667eea', mb: 1 }} />
-              <Typography variant="h3" sx={{ color: '#fff', fontWeight: 700 }}>
+              <MusicNote sx={{ fontSize: { xs: 32, sm: 40 }, color: '#667eea', mb: 1 }} />
+              <Typography variant={isMobile ? "h4" : "h3"} sx={{ color: '#fff', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem' } }}>
                 {stats.tracks}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 треков
               </Typography>
             </StatBox>
           </GlassCard>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <GlassCard>
             <StatBox>
-              <Category sx={{ fontSize: 40, color: '#4caf50', mb: 1 }} />
-              <Typography variant="h3" sx={{ color: '#fff', fontWeight: 700 }}>
+              <Category sx={{ fontSize: { xs: 32, sm: 40 }, color: '#4caf50', mb: 1 }} />
+              <Typography variant={isMobile ? "h4" : "h3"} sx={{ color: '#fff', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem' } }}>
                 {stats.genres}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 жанров
               </Typography>
             </StatBox>
           </GlassCard>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <GlassCard>
             <StatBox>
-              <People sx={{ fontSize: 40, color: '#ff9800', mb: 1 }} />
-              <Typography variant="h3" sx={{ color: '#fff', fontWeight: 700 }}>
+              <People sx={{ fontSize: { xs: 32, sm: 40 }, color: '#ff9800', mb: 1 }} />
+              <Typography variant={isMobile ? "h4" : "h3"} sx={{ color: '#fff', fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem' } }}>
                 {stats.users}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 пользователей
               </Typography>
             </StatBox>
           </GlassCard>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <GlassCard>
             <StatBox>
-              <AccessTime sx={{ fontSize: 40, color: '#ff6b6b', mb: 1 }} />
-              <Typography variant="h3" sx={{ color: '#fff', fontWeight: 700 }}>
+              <AccessTime sx={{ fontSize: { xs: 32, sm: 40 }, color: '#ff6b6b', mb: 1 }} />
+              <Typography variant={isMobile ? "h6" : "h3"} sx={{ color: '#fff', fontWeight: 700, fontSize: { xs: '1rem', sm: '1.2rem', md: '3rem' } }}>
                 {stats.totalHours} ч {stats.totalMinutes} мин
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                 всего музыки
               </Typography>
             </StatBox>

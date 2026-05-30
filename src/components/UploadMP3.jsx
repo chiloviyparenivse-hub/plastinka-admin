@@ -16,6 +16,8 @@ import {
   CircularProgress,
   Chip,
   InputAdornment,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -25,16 +27,18 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { styled } from '@mui/material/styles';
 import api from '../services/api';
 
-const StyledDialog = styled(Dialog)({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
     background: '#1a1a2e',
-    borderRadius: 20,
+    borderRadius: theme.breakpoints.down('sm') ? 0 : 20,
     border: '1px solid rgba(255,255,255,0.1)',
+    margin: theme.breakpoints.down('sm') ? 0 : 32,
+    width: '100%',
   },
-});
+}));
 
 const DropZone = styled(Paper)(({ theme, isDragActive }) => ({
-  padding: '24px',
+  padding: theme.breakpoints.down('sm') ? '16px' : '24px',
   textAlign: 'center',
   cursor: 'pointer',
   backgroundColor: isDragActive ? 'rgba(102,126,234,0.1)' : 'rgba(255,255,255,0.03)',
@@ -66,10 +70,13 @@ const SearchField = styled(TextField)({
   },
   '& .MuiInputBase-input': {
     color: '#fff',
+    fontSize: { xs: '14px', sm: '16px' },
   },
 });
 
 const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [audioFile, setAudioFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
@@ -136,7 +143,6 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
           setCoverFromMetadata(true);
         }
         
-        // Автоматический выбор жанра из метаданных
         if (response.data.genre || response.data.genreKey) {
           let matchedGenre = null;
           
@@ -259,18 +265,18 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
   const selectedGenre = genres.find(g => g.id === genreId);
 
   return (
-    <StyledDialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+    <StyledDialog open={open} onClose={handleClose} maxWidth="md" fullWidth fullScreen={isMobile}>
+      <DialogTitle sx={{ color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
         Загрузить MP3 трек
       </DialogTitle>
       
-      <DialogContent sx={{ mt: 2 }}>
-        <Grid container spacing={2}>
+      <DialogContent sx={{ mt: 2, px: { xs: 2, sm: 3 } }}>
+        <Grid container spacing={isMobile ? 2 : 3}>
           <Grid item xs={12} md={6}>
             <DropZone {...getAudioRootProps()} isDragActive={isAudioDrag}>
               <input {...getAudioInputProps()} />
-              <CloudUploadIcon sx={{ fontSize: 48, color: '#667eea', mb: 1 }} />
-              <Typography sx={{ color: '#fff' }}>
+              <CloudUploadIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: '#667eea', mb: 1 }} />
+              <Typography sx={{ color: '#fff', fontSize: { xs: '0.875rem', sm: '1rem' } }}>
                 {audioFile ? audioFile.name : 'Перетащите MP3 файл или кликните'}
               </Typography>
               {audioFile && (
@@ -296,8 +302,10 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
                 </Box>
               ) : (
                 <>
-                  <ImageIcon sx={{ fontSize: 48, color: '#667eea', mb: 1 }} />
-                  <Typography sx={{ color: '#fff' }}>Обложка (необязательно)</Typography>
+                  <ImageIcon sx={{ fontSize: { xs: 36, sm: 48 }, color: '#667eea', mb: 1 }} />
+                  <Typography sx={{ color: '#fff', fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                    Обложка (необязательно)
+                  </Typography>
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
                     Или будет извлечена из MP3
                   </Typography>
@@ -323,7 +331,7 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
           required
           disabled={uploading || extracting}
           sx={{ mt: 2 }}
-          InputProps={{ sx: { color: '#fff', bgcolor: 'rgba(255,255,255,0.03)' } }}
+          InputProps={{ sx: { color: '#fff', bgcolor: 'rgba(255,255,255,0.03)', fontSize: { xs: '14px', sm: '16px' } } }}
           InputLabelProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
         />
         
@@ -335,11 +343,10 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
           margin="normal"
           required
           disabled={uploading || extracting}
-          InputProps={{ sx: { color: '#fff', bgcolor: 'rgba(255,255,255,0.03)' } }}
+          InputProps={{ sx: { color: '#fff', bgcolor: 'rgba(255,255,255,0.03)', fontSize: { xs: '14px', sm: '16px' } } }}
           InputLabelProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
         />
         
-        {/* Жанр с поиском */}
         <Box sx={{ mt: 2, mb: 1 }}>
           <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', mb: 1, display: 'block' }}>
             Жанр
@@ -408,7 +415,7 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                      <Typography sx={{ flex: 1 }}>{genre.name}</Typography>
+                      <Typography sx={{ flex: 1, fontSize: { xs: '14px', sm: '16px' } }}>{genre.name}</Typography>
                       {genre.key && (
                         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)' }}>
                           {genre.key}
@@ -436,7 +443,7 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
           margin="normal"
           type="number"
           disabled={uploading}
-          InputProps={{ sx: { color: '#fff', bgcolor: 'rgba(255,255,255,0.03)' } }}
+          InputProps={{ sx: { color: '#fff', bgcolor: 'rgba(255,255,255,0.03)', fontSize: { xs: '14px', sm: '16px' } } }}
           InputLabelProps={{ sx: { color: 'rgba(255,255,255,0.5)' } }}
         />
 
@@ -456,15 +463,15 @@ const UploadMP3 = ({ open, onClose, onUploadSuccess, genres }) => {
         )}
       </DialogContent>
       
-      <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: 2 }}>
-        <Button onClick={handleClose} disabled={uploading} sx={{ color: 'rgba(255,255,255,0.6)' }}>
+      <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: { xs: 1.5, sm: 2 }, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
+        <Button onClick={handleClose} disabled={uploading} sx={{ color: 'rgba(255,255,255,0.6)', width: { xs: '100%', sm: 'auto' } }}>
           Отмена
         </Button>
         <Button 
           onClick={handleUpload} 
           variant="contained" 
           disabled={uploading || extracting || !audioFile || !title || !artist || !genreId}
-          sx={{ bgcolor: '#667eea', '&:hover': { bgcolor: '#7b8eef' }, textTransform: 'none' }}
+          sx={{ bgcolor: '#667eea', '&:hover': { bgcolor: '#7b8eef' }, textTransform: 'none', width: { xs: '100%', sm: 'auto' } }}
         >
           {uploading ? 'Загрузка...' : 'Загрузить'}
         </Button>

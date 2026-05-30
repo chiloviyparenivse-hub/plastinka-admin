@@ -23,6 +23,8 @@ import {
   InputAdornment,
   Grid,
   Paper,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { 
   Add, 
@@ -31,17 +33,16 @@ import {
   Search, 
   Clear,
   LibraryMusic,
-  Code,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import api from '../services/api';
 
-// Стилизованные компоненты в стиле приложения
 const GradientPaper = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
   borderRadius: 20,
   border: '1px solid rgba(255,255,255,0.1)',
   boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+  overflowX: 'auto',
 }));
 
 const GlassPaper = styled(Paper)(({ theme }) => ({
@@ -87,6 +88,8 @@ const StyledTableHeaderCell = styled(TableCell)({
 });
 
 const Genres = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [genres, setGenres] = useState([]);
   const [filteredGenres, setFilteredGenres] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,7 +114,6 @@ const Genres = () => {
       setGenres(response.data);
       setFilteredGenres(response.data);
       setError('');
-      console.log(`Загружено ${response.data.length} жанров`);
     } catch (err) {
       setError('Не удалось загрузить жанры');
       console.error(err);
@@ -143,6 +145,7 @@ const Genres = () => {
   const handleOpenDialog = (genre = null) => {
     if (genre) {
       setCurrentGenre({
+        id: genre.id,
         key: genre.key || '',
         name: genre.name,
         description: genre.description || ''
@@ -168,7 +171,6 @@ const Genres = () => {
       return;
     }
 
-    // Проверка формата key (только латиница, цифры и нижнее подчеркивание)
     const keyRegex = /^[a-z][a-z0-9_]*$/i;
     if (!keyRegex.test(currentGenre.key)) {
       alert('Ключ должен содержать только латинские буквы, цифры и нижнее подчеркивание, и начинаться с буквы');
@@ -222,10 +224,10 @@ const Genres = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography 
-          variant="h4" 
+          variant={isMobile ? "h5" : "h4"} 
           sx={{ 
             fontWeight: 600, 
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -245,6 +247,9 @@ const Genres = () => {
             borderRadius: 12,
             textTransform: 'none',
             fontWeight: 600,
+            px: { xs: 2, sm: 3 },
+            py: { xs: 0.75, sm: 1 },
+            fontSize: { xs: '0.875rem', sm: '0.9375rem' },
             '&:hover': {
               background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)',
             }
@@ -254,8 +259,7 @@ const Genres = () => {
         </Button>
       </Box>
 
-      {/* Поиск */}
-      <GlassPaper sx={{ p: 2, mb: 3 }}>
+      <GlassPaper sx={{ p: { xs: 1.5, sm: 2 }, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={9}>
             <SearchField
@@ -281,7 +285,7 @@ const Genres = () => {
             />
           </Grid>
           <Grid item xs={12} md={3}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
               <Chip 
                 label={`Найдено: ${filteredGenres.length} из ${genres.length}`}
                 sx={{ 
@@ -320,13 +324,13 @@ const Genres = () => {
         </GradientPaper>
       ) : (
         <TableContainer component={GradientPaper}>
-          <Table>
+          <Table sx={{ minWidth: isMobile ? 500 : 'auto' }}>
             <TableHead>
               <TableRow>
                 <StyledTableHeaderCell>ID</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Ключ (key)</StyledTableHeaderCell>
                 <StyledTableHeaderCell>Название</StyledTableHeaderCell>
-                <StyledTableHeaderCell>Описание</StyledTableHeaderCell>
+                {!isMobile && <StyledTableHeaderCell>Описание</StyledTableHeaderCell>}
                 <StyledTableHeaderCell align="right">Действия</StyledTableHeaderCell>
               </TableRow>
             </TableHead>
@@ -351,11 +355,13 @@ const Genres = () => {
                       {genre.name}
                     </Typography>
                   </StyledTableCell>
-                  <StyledTableCell>
-                    <Typography variant="body2" color="rgba(255,255,255,0.7)">
-                      {genre.description || '—'}
-                    </Typography>
-                  </StyledTableCell>
+                  {!isMobile && (
+                    <StyledTableCell>
+                      <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                        {genre.description || '—'}
+                      </Typography>
+                    </StyledTableCell>
+                  )}
                   <StyledTableCell align="right">
                     <Tooltip title="Редактировать">
                       <IconButton 
@@ -383,16 +389,16 @@ const Genres = () => {
         </TableContainer>
       )}
 
-      {/* Диалог добавления/редактирования */}
       <Dialog 
         open={openDialog} 
         onClose={handleCloseDialog} 
         maxWidth="sm" 
         fullWidth
+        fullScreen={isMobile}
         PaperProps={{
           sx: {
             background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-            borderRadius: 3,
+            borderRadius: isMobile ? 0 : 3,
             border: '1px solid rgba(255,255,255,0.1)',
           }
         }}
@@ -455,11 +461,11 @@ const Genres = () => {
             }}
           />
         </DialogContent>
-        <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: 2 }}>
+        <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: { xs: 1.5, sm: 2 }, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
           <Button 
             onClick={handleCloseDialog}
             disabled={saving}
-            sx={{ color: '#667eea' }}
+            sx={{ color: '#667eea', width: { xs: '100%', sm: 'auto' } }}
           >
             Отмена
           </Button>
@@ -469,7 +475,8 @@ const Genres = () => {
             disabled={saving}
             sx={{ 
               background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              '&:hover': { background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)' }
+              '&:hover': { background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)' },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             {saving ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : (currentGenre.id ? 'Сохранить' : 'Создать')}

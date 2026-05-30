@@ -7,20 +7,30 @@ import {
   Paper,
   CircularProgress,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import api from '../services/api';
 
-const StyledPaper = styled(Paper)({
+const StyledPaper = styled(Paper)(({ theme }) => ({
   background: '#1a1a2e',
   borderRadius: 20,
   border: '1px solid rgba(255,255,255,0.1)',
-  padding: '40px',
+  padding: theme.spacing(4),
   width: '100%',
   maxWidth: 400,
-});
+  margin: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(3),
+    margin: theme.spacing(1),
+    maxWidth: 'calc(100% - 32px)',
+  },
+}));
 
 const Login = ({ onLogin }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -58,10 +68,11 @@ const Login = ({ onLogin }) => {
         alignItems: 'center',
         justifyContent: 'center',
         bgcolor: '#0a0a1a',
+        p: { xs: 2, sm: 3 },
       }}
     >
       <StyledPaper>
-        <Typography variant="h5" sx={{ color: '#fff', fontWeight: 600, textAlign: 'center', mb: 1 }}>
+        <Typography variant={isMobile ? "h6" : "h5"} sx={{ color: '#fff', fontWeight: 600, textAlign: 'center', mb: 1 }}>
           Вход в админ-панель
         </Typography>
         <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', mb: 4 }}>
@@ -115,11 +126,11 @@ const Login = ({ onLogin }) => {
             disabled={loading}
             sx={{
               mt: 3,
-              py: 1.5,
+              py: { xs: 1.25, sm: 1.5 },
               bgcolor: '#667eea',
               '&:hover': { bgcolor: '#7b8eef' },
               textTransform: 'none',
-              fontSize: 15,
+              fontSize: { xs: 14, sm: 15 },
               fontWeight: 500,
             }}
           >

@@ -24,6 +24,8 @@ import {
   InputAdornment,
   Grid,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { 
   Edit, 
@@ -40,12 +42,12 @@ import { styled } from '@mui/material/styles';
 import api from '../services/api';
 import UploadMP3 from '../components/UploadMP3';
 
-// Стилизованные компоненты
 const GradientPaper = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
   borderRadius: 20,
   border: '1px solid rgba(255,255,255,0.1)',
   boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+  overflowX: 'auto',
 }));
 
 const GlassPaper = styled(Paper)(({ theme }) => ({
@@ -94,6 +96,8 @@ const StyledTableHeaderCell = styled(TableCell)({
 });
 
 const Tracks = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [tracks, setTracks] = useState([]);
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +105,6 @@ const Tracks = () => {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Для редактирования
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingTrack, setEditingTrack] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -200,7 +203,7 @@ const Tracks = () => {
       await loadData();
       alert('Трек успешно обновлен');
     } catch (err) {
-      console.error(' Ошибка:', err);
+      console.error('Ошибка:', err);
       alert('Ошибка при обновлении трека: ' + (err.response?.data?.message || err.message));
     } finally {
       setEditLoading(false);
@@ -211,7 +214,6 @@ const Tracks = () => {
     loadData();
   };
 
-  // Фильтрация треков только по поиску
   const filteredTracks = tracks.filter(track => {
     const matchesSearch = searchTerm === '' || 
       track.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -228,10 +230,10 @@ const Tracks = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography 
-          variant="h4" 
+          variant={isMobile ? "h5" : "h4"} 
           sx={{ 
             fontWeight: 600, 
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -251,6 +253,9 @@ const Tracks = () => {
             borderRadius: 12,
             textTransform: 'none',
             fontWeight: 600,
+            px: { xs: 2, sm: 3 },
+            py: { xs: 0.75, sm: 1 },
+            fontSize: { xs: '0.875rem', sm: '0.9375rem' },
             '&:hover': {
               background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)',
             }
@@ -260,14 +265,13 @@ const Tracks = () => {
         </Button>
       </Box>
 
-      {/* Только поиск, без фильтра */}
-      <GlassPaper sx={{ p: 2, mb: 3 }}>
+      <GlassPaper sx={{ p: { xs: 1.5, sm: 2 }, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={9}>
             <SearchField
               fullWidth
               size="small"
-              placeholder="Поиск по названию"
+              placeholder="Поиск по названию или исполнителю..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -287,7 +291,7 @@ const Tracks = () => {
             />
           </Grid>
           <Grid item xs={12} md={3}>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
               <Chip 
                 label={`Найдено: ${filteredTracks.length} из ${tracks.length}`}
                 sx={{ 
@@ -326,7 +330,7 @@ const Tracks = () => {
         </GradientPaper>
       ) : (
         <TableContainer component={GradientPaper}>
-          <Table>
+          <Table sx={{ minWidth: isMobile ? 600 : 'auto' }}>
             <TableHead>
               <TableRow>
                 <StyledTableHeaderCell>ID</StyledTableHeaderCell>
@@ -404,16 +408,16 @@ const Tracks = () => {
         </TableContainer>
       )}
 
-      {/* Диалог редактирования */}
       <Dialog 
         open={editDialogOpen} 
         onClose={() => setEditDialogOpen(false)} 
         maxWidth="sm" 
         fullWidth
+        fullScreen={isMobile}
         PaperProps={{
           sx: {
             background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-            borderRadius: 3,
+            borderRadius: isMobile ? 0 : 3,
             border: '1px solid rgba(255,255,255,0.1)',
           }
         }}
@@ -576,11 +580,11 @@ const Tracks = () => {
             )}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: 2 }}>
+        <DialogActions sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', p: { xs: 1.5, sm: 2 }, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
           <Button 
             onClick={() => setEditDialogOpen(false)} 
             disabled={editLoading}
-            sx={{ color: '#667eea' }}
+            sx={{ color: '#667eea', width: { xs: '100%', sm: 'auto' } }}
           >
             Отмена
           </Button>
@@ -590,7 +594,8 @@ const Tracks = () => {
             disabled={editLoading}
             sx={{ 
               background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              '&:hover': { background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)' }
+              '&:hover': { background: 'linear-gradient(135deg, #7b8eef, #8b5cb2)' },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
             {editLoading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Сохранить'}

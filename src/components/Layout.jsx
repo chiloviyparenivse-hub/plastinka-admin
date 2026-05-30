@@ -34,7 +34,6 @@ import { styled } from '@mui/material/styles';
 const drawerWidth = 280;
 const miniDrawerWidth = 72;
 
-// Стилизованный компонент для Drawer с адаптивной шириной
 const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     width: open ? drawerWidth : miniDrawerWidth,
@@ -59,7 +58,6 @@ const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !== 'ope
   })
 );
 
-// Стилизованный компонент для AppBar
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, rgba(26,26,46,0.95) 0%, rgba(22,33,62,0.95) 50%, rgba(15,52,96,0.95) 100%)',
   backdropFilter: 'blur(10px)',
@@ -69,12 +67,11 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     '& .MuiToolbar-root': {
       minHeight: 56,
-      padding: '0 12px',
+      padding: '0 8px',
     },
   },
 }));
 
-// Стилизованный компонент для пункта меню
 const StyledListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 'active' })(
   ({ theme, active }) => ({
     borderRadius: 12,
@@ -106,30 +103,18 @@ const StyledListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 
   })
 );
 
-// Стилизованный контент для адаптивности
-const MainContent = styled(Box, { shouldForwardProp: (prop) => prop !== 'drawerOpen' })(
-  ({ theme, drawerOpen }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    backgroundColor: '#0a0a1a',
-    minHeight: '100vh',
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: drawerOpen ? `${drawerWidth}px` : `${miniDrawerWidth}px`,
-    width: `calc(100% - ${drawerOpen ? drawerWidth : miniDrawerWidth}px)`,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-      width: '100%',
-      padding: theme.spacing(1.5),
-    },
-    [theme.breakpoints.between('sm', 'md')]: {
-      marginLeft: drawerOpen ? `${drawerWidth}px` : `${miniDrawerWidth}px`,
-      padding: theme.spacing(2),
-    },
-  })
-);
+const MainContent = styled(Box)(({ theme }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+  backgroundColor: '#0a0a1a',
+  minHeight: '100vh',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+  },
+  [theme.breakpoints.between('sm', 'md')]: {
+    padding: theme.spacing(2),
+  },
+}));
 
 const Layout = ({ onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -141,7 +126,6 @@ const Layout = ({ onLogout }) => {
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
-  // Автоматическое сворачивание на планшетах
   useEffect(() => {
     if (isTablet) {
       setDrawerOpen(false);
@@ -184,11 +168,10 @@ const Layout = ({ onLogout }) => {
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Logo */}
       <Toolbar sx={{ justifyContent: 'center', py: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <Box sx={{ textAlign: 'center' }}>
           <Typography
-            variant={drawerOpen ? 'h6' : 'subtitle2'}
+            variant={drawerOpen && !isMobile ? 'h6' : 'subtitle2'}
             sx={{
               fontWeight: 700,
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -198,9 +181,9 @@ const Layout = ({ onLogout }) => {
               whiteSpace: 'nowrap',
             }}
           >
-            {drawerOpen ? 'Пластинка' : 'П'}
+            {drawerOpen && !isMobile ? 'Пластинка' : 'П'}
           </Typography>
-          {drawerOpen && (
+          {drawerOpen && !isMobile && (
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
               Админ-панель
             </Typography>
@@ -208,7 +191,6 @@ const Layout = ({ onLogout }) => {
         </Box>
       </Toolbar>
 
-      {/* Menu Items */}
       <Box sx={{ flex: 1, mt: 3 }}>
         <List component="nav">
           {menuItems.map((item) => (
@@ -221,8 +203,8 @@ const Layout = ({ onLogout }) => {
               active={isActive(item.path) ? 1 : 0}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
-              {drawerOpen && <ListItemText primary={item.text} />}
-              {drawerOpen && isActive(item.path) && (
+              {(drawerOpen || !isDesktop) && <ListItemText primary={item.text} />}
+              {(drawerOpen || !isDesktop) && isActive(item.path) && (
                 <Box
                   sx={{
                     width: 3,
@@ -237,8 +219,7 @@ const Layout = ({ onLogout }) => {
         </List>
       </Box>
 
-      {/* Stats Footer */}
-      {drawerOpen && (
+      {(drawerOpen || !isDesktop) && (
         <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', mt: 'auto' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
             <EqualizerIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
@@ -269,7 +250,7 @@ const Layout = ({ onLogout }) => {
             <MenuIcon />
           </IconButton>
 
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1, fontWeight: 500, color: '#fff' }}>
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1, fontWeight: 500, color: '#fff', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
             Панель управления
           </Typography>
 
@@ -279,8 +260,8 @@ const Layout = ({ onLogout }) => {
             startIcon={
               <Avatar
                 sx={{
-                  width: 36,
-                  height: 36,
+                  width: { xs: 32, sm: 36 },
+                  height: { xs: 32, sm: 36 },
                   background: 'linear-gradient(135deg, #667eea, #764ba2)',
                   boxShadow: '0 2px 8px rgba(102,126,234,0.3)',
                 }}
@@ -329,7 +310,6 @@ const Layout = ({ onLogout }) => {
         </Toolbar>
       </StyledAppBar>
 
-      {/* Мобильный Drawer (временный) */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -348,7 +328,6 @@ const Layout = ({ onLogout }) => {
         {drawerContent}
       </Drawer>
 
-      {/* Десктопный/Планшетный Drawer (постоянный) */}
       <StyledDrawer
         variant="permanent"
         open={drawerOpen}
@@ -359,13 +338,13 @@ const Layout = ({ onLogout }) => {
         {drawerContent}
       </StyledDrawer>
 
-      <MainContent drawerOpen={drawerOpen && !isMobile}>
-        <Toolbar /> {/* Отступ под AppBar */}
+      <MainContent>
+        <Toolbar />
         <Container 
           maxWidth={false}
           disableGutters
           sx={{ 
-            px: { xs: 1, sm: 2, md: 3 },
+            px: { xs: 0, sm: 1, md: 2 },
             width: '100%',
           }}
         >
